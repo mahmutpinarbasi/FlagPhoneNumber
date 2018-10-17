@@ -48,6 +48,14 @@ open class FPNTextField: UITextField, UITextFieldDelegate, FPNCountryPickerDeleg
 			phoneCodeTextField.font = font
 		}
 	}
+    
+    open override var typingAttributes: [NSAttributedString.Key : Any]? {
+        didSet {
+            phoneCodeTextField.typingAttributes = typingAttributes
+        }
+    }
+    
+    open var placeholderAttributes: [NSAttributedString.Key : Any]?
 
 	open override var textColor: UIColor? {
 		didSet {
@@ -293,7 +301,12 @@ open class FPNTextField: UITextField, UITextFieldDelegate, FPNCountryPickerDeleg
 		flagButton.setImage(selectedCountry?.flag, for: .normal)
 
 		if let phoneCode = selectedCountry?.phoneCode {
-			phoneCodeTextField.text = phoneCode
+            if let attributes = self.typingAttributes {
+                phoneCodeTextField.attributedText = NSAttributedString(string: phoneCode, attributes: attributes)
+            }else{
+                phoneCodeTextField.text = phoneCode
+            }
+			
 			phoneCodeTextField.sizeToFit()
 			layoutSubviews()
 		}
@@ -373,7 +386,13 @@ open class FPNTextField: UITextField, UITextFieldDelegate, FPNCountryPickerDeleg
 				let phoneNumber = "+\(example.countryCode.stringValue)\(example.nationalNumber.stringValue)"
 
 				if let inputString = formatter?.inputString(phoneNumber) {
-					placeholder = remove(dialCode: "+\(example.countryCode.stringValue)", in: inputString)
+                    let placeholderValue = remove(dialCode: "+\(example.countryCode.stringValue)", in: inputString)
+                    if let attributes = self.placeholderAttributes {
+                        attributedPlaceholder = NSAttributedString(string: placeholderValue, attributes: attributes)
+                    }else {
+                        placeholder = placeholderValue
+                    }
+					
 				} else {
 					placeholder = nil
 				}
